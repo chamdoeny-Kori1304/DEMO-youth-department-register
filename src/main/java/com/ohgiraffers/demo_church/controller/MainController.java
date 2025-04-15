@@ -26,11 +26,11 @@ public class MainController {
     @Value("${google.spreadsheet.id}")  // <-- 이렇게 수정해야 동작함
     private String SPREAD_SHEET_ID;
 
-    private static final String RANGE = "sheet1!A1:E1";
+    @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
+    private String RANGE;
 
     @GetMapping("/read")
     public ResponseEntity<?> readFromSheet() {
-
         try {
             final List<Map<String, String>> data= mainService.readFromSheet(SPREAD_SHEET_ID, RANGE);
 
