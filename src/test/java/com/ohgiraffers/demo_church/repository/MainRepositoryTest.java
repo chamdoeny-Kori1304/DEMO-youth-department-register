@@ -13,10 +13,7 @@ import java.util.Map;
 @SpringBootTest
 @Slf4j
 class MainRepositoryTest {
-
     private final MainRepository mainRepository = new MainRepository(new GoogleSheetConfig());
-    @Value("${google.spreadsheet.id}")
-    String SPREAD_SHEET_ID;
 
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private String MAIN_SHEET_RANGE;
@@ -25,7 +22,7 @@ class MainRepositoryTest {
     void findAll_실행시간_측정() {
         long start = System.nanoTime();
 
-        List<Map<String, String>> result = mainRepository.findAll(SPREAD_SHEET_ID, MAIN_SHEET_RANGE);
+        List<Map<String, String>> result = mainRepository.findData(MAIN_SHEET_RANGE);
 
         long end = System.nanoTime();
         double elapsedMillis = (end - start) / 1_000_000.0;

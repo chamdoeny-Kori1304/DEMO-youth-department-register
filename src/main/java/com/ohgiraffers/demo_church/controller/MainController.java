@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,22 +24,29 @@ import java.util.Map;
 public class MainController {
     private final MainService mainService;
 
-    @Value("${google.spreadsheet.id}")  // <-- 이렇게 수정해야 동작함
-    private String SPREAD_SHEET_ID;
-
-    @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
-    private String RANGE;
-
-    @GetMapping("/read")
-    public ResponseEntity<?> readFromSheet() {
+    @GetMapping("/sheet/{range}")
+    public ResponseEntity<?> getSheetData(@PathVariable String range) {
         try {
-            final List<Map<String, String>> data= mainService.readFromSheet(SPREAD_SHEET_ID, RANGE);
+            final List<Map<String, String>> data= mainService.readFromSheet(range);
 
             return ResponseEntity.ok(data);
 
         }catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Failed to read data: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/members")
+    public ResponseEntity<?> getAllMembers() {
+        try {
+            final List<Map<String, String>> data= mainService.readAllMemberFromMainSheet();
+
+            return ResponseEntity.ok(data);
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Failed to get all member data: " + e.getMessage());
         }
     }
 }
