@@ -14,7 +14,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class MainService {
-    private  MainRepository repository;
+    private final MainRepository repository;
 
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private String ALL_MEMBER_RANGE;
