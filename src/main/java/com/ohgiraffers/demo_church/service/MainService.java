@@ -14,7 +14,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class MainService {
-    private final MainRepository repository;
+    private  MainRepository repository;
 
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private String ALL_MEMBER_RANGE;
@@ -30,9 +30,9 @@ public class MainService {
      * @param range 읽어올  Sheet의 범위 (예: "Sheet1!A1:D100")
      * @return 해당 범위의 데이터를 Map 리스트 형식으로 반환
      */
-       public List<Map<String, String>> readFromSheet(String range) {
+       public List<Map<String, String>> readFromSheet(String range ,String defaultColumName) {
 
-        return  repository.findData(range);
+        return  repository.findData(range, defaultColumName);
 
     }
 
@@ -42,7 +42,8 @@ public class MainService {
      * @return 회원 데이터 전체 리스트
      */
     public List<Map<String, String>> readAllMemberFromMainSheet( ) {
-        return  repository.findData(ALL_MEMBER_RANGE);
+        final String DEFAULT_COLUMN_NAME = "이름" ;
+        return  repository.findData(ALL_MEMBER_RANGE, DEFAULT_COLUMN_NAME);
 
     }
 

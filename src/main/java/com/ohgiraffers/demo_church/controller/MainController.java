@@ -26,8 +26,9 @@ public class MainController {
 
     @GetMapping("/sheet/{range}")
     public ResponseEntity<?> getSheetData(@PathVariable String range) {
+        String columName = "";
         try {
-            final List<Map<String, String>> data= mainService.readFromSheet(range);
+            final List<Map<String, String>> data= mainService.readFromSheet(range, columName);
 
             return ResponseEntity.ok(data);
 

@@ -21,10 +21,6 @@ public class MainRepository {
     @Value("${google.spreadsheet.id}")  // <-- 이렇게 수정해야 동작함
     private String SPREAD_SHEET_ID;
 
-    int emptyRowCount = 0;
-    private List<Map<String, String>> findResponse = new ArrayList<>();
-
-
     public void save(String spreadsheetId, String range, OrderInfo request) {
         try {
             List<List<Object>> values = List.of(
@@ -48,24 +44,26 @@ public class MainRepository {
         }
     }
 
-    public List<Map<String, String>> findData(String range) {
+    public List<Map<String, String>> findData(String range, String defaultColumnName) {
+        List<Map<String, String>> findResponse = new ArrayList<>();
+        int emptyRowCount = 0;
+
+        List<List<Object>> values = this.filterData(range);
+        if (values == null || values.isEmpty()) return Collections.emptyList();
+        List<String> columnNames = getColumNames(values.get(0));
 
         try {
-            List<List<Object>> values = this.filterData(range);
-            if (values == null || values.isEmpty()) return Collections.emptyList();
-            List<String> columnNames = getColumNames(values.get(0));
-
-
             for (int i = 1; i < values.size(); i++) {
                 List<Object> row = values.get(i);
 
-                if (emptyRowCount >= 2) {
-                    emptyRowCount = 0;
-                    break;
-                }
+                if (emptyRowCount >= 2) break;
 
-                this.addRowOnFindResponse(columnNames, row, "이름");
 
+                final Map<String, String> rowMap = this.createRowMapFromSheetData(columnNames, row);
+                boolean isAdd = this.shouldAddRowToResponse(rowMap, defaultColumnName);
+                if (isAdd) {
+                    findResponse.add(rowMap);
+                }else emptyRowCount++;
             }
 
             return findResponse;
@@ -103,20 +101,20 @@ public class MainRepository {
         return columNames;
     }
 
-    // TODO "이름"이라는 고정된 값이 아닌 특정한 것으로 넣자
-    private void addRowOnFindResponse(List<String> columnNames, List<Object> row, String defaultColumName) {
-        int rowSize = row.size();
-        Map<String, String> map = new HashMap<>();
+    private Map<String, String> createRowMapFromSheetData(List<String> columnNames, List<Object> row) {
+        Map<String, String> rowMap = new HashMap<>();
         for (int j = 0; j < columnNames.size(); j++) {
-
-            // row.size()는 columNames보다 작을 수 있다. // sheet data를 가져올때 비어있다면 더 이상 가져오지 않는다.
-            String value = rowSize > j ? row.get(j).toString() : "";
-            map.put(columnNames.get(j), value);
+            // row.size()는 columnNames보다 작을 수 있다.
+            // 스프레드시트 데이터를 가져올 때 비어있다면 더 이상 가져오지 않는다.
+            String value = j < row.size() ? row.get(j).toString() : "";
+            rowMap.put(columnNames.get(j), value);
         }
-        if (map.get(defaultColumName) != null && !map.get(defaultColumName).isEmpty()) {
+        return rowMap;
+    }
 
-            findResponse.add(map);
-        } else emptyRowCount++;
+    private boolean shouldAddRowToResponse(Map<String, String> rowMap, String defaultColumnName) {
+        return (defaultColumnName == null || defaultColumnName.isEmpty()) ||
+                (rowMap.get(defaultColumnName) != null && !rowMap.get(defaultColumnName).isEmpty());
     }
 
 }
