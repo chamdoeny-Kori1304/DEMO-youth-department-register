@@ -3,7 +3,7 @@ package com.ohgiraffers.demo_church.repository;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.ohgiraffers.demo_church.config.GoogleSheetConfig;
-import com.ohgiraffers.demo_church.domain.GoogleSheetUtils;
+import com.ohgiraffers.demo_church.util.GoogleSheetUtils;
 import com.ohgiraffers.demo_church.domain.OrderInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
