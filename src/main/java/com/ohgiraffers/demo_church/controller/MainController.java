@@ -8,11 +8,7 @@ import com.ohgiraffers.demo_church.service.MainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -25,14 +21,14 @@ public class MainController {
     private final MainService mainService;
 
     @GetMapping("/sheet/{range}")
-    public ResponseEntity<?> getSheetData(@PathVariable String range) {
-        String columName = "";
+    public ResponseEntity<?> getSheetData(@PathVariable String range, @RequestParam(required = false) String columnName) {
+
         try {
-            final List<Map<String, String>> data= mainService.readFromSheet(range, columName);
+            final List<Map<String, String>> data = mainService.readFromSheet(range, columnName);
 
             return ResponseEntity.ok(data);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Failed to read data: " + e.getMessage());
         }
@@ -41,11 +37,28 @@ public class MainController {
     @GetMapping("/members")
     public ResponseEntity<?> getAllMembers() {
         try {
-            final List<Map<String, String>> data= mainService.readAllMemberFromMainSheet();
+            final
+            List <Map<String, String>> data = mainService.readAllMembersFromMainSheet();
 
             return ResponseEntity.ok(data);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Failed to get all member data: " + e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/team-members")
+    public ResponseEntity<?> getCurrentTeamMembers() {
+        String yearQuarter = "1분기 셀"; // TODO DB column 이름을 변경하면 동일하게 변경
+        try {
+            final
+            Map<String, List<String>>  data = mainService.getTeamToMembersMap(yearQuarter);
+
+            return ResponseEntity.ok(data);
+
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Failed to get all member data: " + e.getMessage());
         }

@@ -19,6 +19,8 @@ public class MainService {
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private String ALL_MEMBER_RANGE;
 
+    private final String DEFAULT_COLUMN_NAME = "이름";
+
     public void writeToSheet(String spreadSheetId, String range, OrderInfo orderInfo) {
         repository.save(spreadSheetId, range, orderInfo);
 
@@ -30,9 +32,9 @@ public class MainService {
      * @param range 읽어올  Sheet의 범위 (예: "Sheet1!A1:D100")
      * @return 해당 범위의 데이터를 Map 리스트 형식으로 반환
      */
-       public List<Map<String, String>> readFromSheet(String range ,String defaultColumName) {
+    public List<Map<String, String>> readFromSheet(String range, String defaultColumName) {
 
-        return  repository.findData(range, defaultColumName);
+        return repository.findData(range, defaultColumName);
 
     }
 
@@ -41,11 +43,14 @@ public class MainService {
      *
      * @return 회원 데이터 전체 리스트
      */
-    public List<Map<String, String>> readAllMemberFromMainSheet( ) {
-        final String DEFAULT_COLUMN_NAME = "이름" ;
-        return  repository.findData(ALL_MEMBER_RANGE, DEFAULT_COLUMN_NAME);
+    public List<Map<String, String>> readAllMembersFromMainSheet() {
+        return repository.findData(ALL_MEMBER_RANGE, DEFAULT_COLUMN_NAME);
 
     }
 
 
+    public Map<String, List<String>> getTeamToMembersMap(String yearQuarter) {
+        return repository.getTeamToMembersMap(ALL_MEMBER_RANGE, DEFAULT_COLUMN_NAME, yearQuarter);
+
+    }
 }
