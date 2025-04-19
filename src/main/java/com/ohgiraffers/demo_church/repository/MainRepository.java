@@ -74,9 +74,16 @@ public class MainRepository {
     }
 
     private <T> void getDataFromSheet(String range, String defaultColumnName, Function<Map<String, String>, T> mapper) {
-        List<List<Object>> values = this.filterData(range);
-        if (values == null || values.isEmpty()) {
-            return;
+        List<List<Object>> values;
+        try{
+            Sheets sheets = googleSheetConfig.provideSheetsClient();
+            values = googleSheetUtils.filterData( sheets ,range,SPREAD_SHEET_ID);
+            if (values == null || values.isEmpty()) {
+                return;
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         List<String> columnNames = googleSheetUtils.getColumnNames(values.get(0));
@@ -105,21 +112,6 @@ public class MainRepository {
             }
         }
     }
-    private List<List<Object>> filterData(String range) {
 
-        try {
-            Sheets service = googleSheetConfig.provideSheetsClient();
-            ValueRange response = service.spreadsheets().values()
-                    .get(SPREAD_SHEET_ID, range)
-                    .execute();
-
-            List<List<Object>> values = response.getValues();
-            return values;
-        } catch (Exception e) {
-            log.error("Failed to filterData data from the spreadsheet", e);
-            throw new RuntimeException("Failed to filterData data: " + e.getMessage(), e);
-        }
-
-    }
 
 }
