@@ -81,7 +81,35 @@ public class AttendanceRepository {
     }
 
 
+    public List<String> getNamesByDate(String targetDate) {
+        Sheets sheets;
+        List<List<Object>> values;
+        List<String> response = new ArrayList<>();
 
+        try {
+            sheets = googleSheetConfig.provideSheetsClient();
+            values = googleSheetUtils.filterData(sheets, "sheet2!A1:AA90", SPREAD_SHEET_ID);
+
+            if (values == null || values.isEmpty()) return response;
+
+            List<Object> header = values.get(0);
+            int colIndex = header.indexOf(targetDate);
+
+            for (int i = 1; i < values.size(); i++) {
+                List<Object> row = values.get(i);
+                if (!row.isEmpty() && row.get(colIndex).toString().equals("O")) {
+                    response.add(row.get(0).toString());
+                }
+            }
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return response;
+
+    }
 
 
     private String getA1Notation(int colIndex, int rowIndex) {
