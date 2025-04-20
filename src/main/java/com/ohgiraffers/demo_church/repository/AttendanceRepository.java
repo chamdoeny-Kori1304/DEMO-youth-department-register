@@ -1,6 +1,7 @@
 package com.ohgiraffers.demo_church.repository;
 
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.ohgiraffers.demo_church.config.GoogleSheetConfig;
 import com.ohgiraffers.demo_church.util.GoogleSheetUtils;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -24,13 +27,16 @@ public class AttendanceRepository {
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private final String sheetName = "sheet2";
 
-    public void updateAttendance(String targetName, String targetDate)  {
+    // TODO 구글시트에 이름을 사전순으로 정렬하고 targetNames도 사전순으로 정렬해서 하면 O(n)으로 끝낼 수 있다.
+    public void updateAttendance(String[] targetNames, String targetDate) {
         Sheets sheets;
         List<List<Object>> values;
+        Arrays.sort(targetNames);
+
 
         try {
             sheets = googleSheetConfig.provideSheetsClient();
-            values = googleSheetUtils.filterData(sheets,"sheet2!A2:AA10", SPREAD_SHEET_ID);
+            values = googleSheetUtils.filterData(sheets, "sheet2!A1:AA90", SPREAD_SHEET_ID);
 
             if (values == null || values.isEmpty()) return;
 
@@ -38,40 +44,48 @@ public class AttendanceRepository {
             int colIndex = header.indexOf(targetDate);
             if (colIndex == -1) throw new IllegalArgumentException("날짜가 존재하지 않습니다: " + targetDate);
 
-            // Step 1: 이름(행) 인덱스 찾기
-            int rowIndex = -1;
-            for (int i = 1; i < values.size(); i++) {
-                List<Object> row = values.get(i);
-                if (!row.isEmpty() && row.get(0).toString().equals(targetName)) {
-                    rowIndex = i;
-                    break;
+            List<ValueRange> updateData = new ArrayList<>();
+            for (int rowIdx = 1; rowIdx < values.size(); rowIdx++) {
+                List<Object> row = values.get(rowIdx);
+                if (row.isEmpty()) continue;
+                String currentName = row.get(0).toString();
+
+
+                if (isContainName(targetNames, currentName)) {
+                    String cell = getA1Notation(colIndex, rowIdx);
+                    String cellRange = sheetName + "!" + cell;
+
+                    // 해당 셀에 O 입력할 것을 저장
+                    ValueRange valueRange = new ValueRange()
+                            .setRange(cellRange)
+                            .setValues(List.of(List.of("O")));
+                    updateData.add(valueRange);
                 }
             }
-            if (rowIndex == -1) throw new IllegalArgumentException("이름이 존재하지 않습니다: " + targetName);
 
-            // Step 2: "A1" 표기법으로 셀 위치 계산
-            String cell = getA1Notation(colIndex, rowIndex);
-            String cellRange = sheetName + "!" + cell;
-
-            // Step 3: 해당 셀에 O 입력
-            ValueRange valueRange = new ValueRange()
-                    .setRange(cellRange)
-                    .setValues(List.of(List.of("O")));
+            // BatchUpdateValuesRequest를 사용하면 복수에 데이터 update 가능
+            BatchUpdateValuesRequest body = new BatchUpdateValuesRequest()
+                    .setValueInputOption("RAW")
+                    .setData(updateData);
 
             sheets.spreadsheets().values()
-                    .update(SPREAD_SHEET_ID, cellRange, valueRange)
-                    .setValueInputOption("RAW")
+                    .batchUpdate(SPREAD_SHEET_ID, body)
                     .execute();
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-       ;
+        ;
     }
 
+
+
+
+
     private String getA1Notation(int colIndex, int rowIndex) {
-        return columnToLetter(colIndex) + (rowIndex + 1 +1); // rowIndex는 0-based
+        return columnToLetter(colIndex) + (rowIndex + 1); // rowIndex는 0-based
     }
 
     private String columnToLetter(int column) {
@@ -81,6 +95,15 @@ public class AttendanceRepository {
             column = column / 26 - 1;
         }
         return sb.toString();
+    }
+
+    private boolean isContainName(String[] names, String targetName) {
+
+        for (String name : names) {
+            if (name.equals(targetName)) return true;
+        }
+        return false;
+
     }
 }
 
