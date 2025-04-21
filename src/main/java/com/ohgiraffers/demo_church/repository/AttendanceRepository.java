@@ -10,9 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
 
 @Slf4j
 @Repository
@@ -110,6 +114,22 @@ public class AttendanceRepository {
         return response;
 
     }
+
+    public void addRow(List<Object> rowData, String range) throws IOException, GeneralSecurityException {
+
+        Sheets sheets = googleSheetConfig.provideSheetsClient();
+
+        ValueRange body = new ValueRange().setValues(Collections.singletonList(rowData));
+//        String range = "A1"; // 데이터를 추가할 시작 셀 (새로운 행은 자동으로 추가됨)
+
+        sheets.spreadsheets().values()
+                .append(SPREAD_SHEET_ID, range, body)
+                .setValueInputOption("RAW") // 또는 "RAW"
+                .execute();
+
+        System.out.println("새로운 행이 스프레드시트에 추가되었습니다: " + rowData);
+    }
+
 
 
     private String getA1Notation(int colIndex, int rowIndex) {
