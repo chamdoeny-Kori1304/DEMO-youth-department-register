@@ -1,7 +1,9 @@
 package com.ohgiraffers.demo_church.repository;
 
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.ohgiraffers.demo_church.common.SheetResponse;
 import com.ohgiraffers.demo_church.config.GoogleSheetConfig;
 import com.ohgiraffers.demo_church.domain.Member;
 import com.ohgiraffers.demo_church.util.GoogleSheetUtils;
@@ -24,18 +26,20 @@ public class MainRepository {
     @Value("${google.spreadsheet.id}")
     private String SPREAD_SHEET_ID;
 
-    public void save(String range, Member member) {
+    public SheetResponse save(String range, Member member) {
         try {
             List<List<Object>> values = List.of(member.toList());
             Sheets sheets = googleSheetConfig.provideSheetsClient();
 
             ValueRange body = new ValueRange().setValues(values);
 
-            sheets.spreadsheets().values()
+            AppendValuesResponse res = sheets.spreadsheets().values()
                     .append(SPREAD_SHEET_ID, range, body)
                     .setValueInputOption("USER_ENTERED")
                     .setIncludeValuesInResponse(true)
                     .execute();
+            return new SheetResponse(true, res.getUpdates().getUpdatedRange());
+
         } catch (Exception e) {
             log.error("Failed to write data to the spreadsheet", e);
             throw new RuntimeException("Failed to write data to the spreadsheet: " + e.getMessage(), e);
@@ -70,14 +74,13 @@ public class MainRepository {
 
     private <T> void getDataFromSheet(String range, String defaultColumnName, Function<Map<String, String>, T> mapper) {
         List<List<Object>> values;
-        try{
+        try {
             Sheets sheets = googleSheetConfig.provideSheetsClient();
-            values = googleSheetUtils.filterData( sheets ,range,SPREAD_SHEET_ID);
+            values = googleSheetUtils.filterData(sheets, range, SPREAD_SHEET_ID);
             if (values == null || values.isEmpty()) {
                 return;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
