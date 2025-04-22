@@ -3,8 +3,8 @@ package com.ohgiraffers.demo_church.repository;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.ohgiraffers.demo_church.config.GoogleSheetConfig;
+import com.ohgiraffers.demo_church.domain.Member;
 import com.ohgiraffers.demo_church.util.GoogleSheetUtils;
-import com.ohgiraffers.demo_church.domain.OrderInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,20 +24,15 @@ public class MainRepository {
     @Value("${google.spreadsheet.id}")
     private String SPREAD_SHEET_ID;
 
-    public void save(String spreadsheetId, String range, OrderInfo request) {
+    public void save(String range, Member member) {
         try {
-            List<List<Object>> values = List.of(
-                    List.of(
-                            request.getId().toString(),
-                            "미수령",
-                            request.getOrderDate().toString(),
-                            request.getItemId().toString()
-                    )
-            );
-            Sheets service = googleSheetConfig.provideSheetsClient();
+            List<List<Object>> values = List.of(member.toList());
+            Sheets sheets = googleSheetConfig.provideSheetsClient();
+
             ValueRange body = new ValueRange().setValues(values);
-            service.spreadsheets().values()
-                    .append(spreadsheetId, range, body)
+
+            sheets.spreadsheets().values()
+                    .append(SPREAD_SHEET_ID, range, body)
                     .setValueInputOption("USER_ENTERED")
                     .setIncludeValuesInResponse(true)
                     .execute();
