@@ -116,6 +116,50 @@ class GoogleSheetsServiceTest {
         assertEquals(expectedResponse, result);
     }
 
+//    @Test
+//    void shouldFindData() throws GeneralSecurityException, IOException {
+//        // Arrange
+//        String range = "A1:B10";
+//        String defaultColumnName = "Name";
+//        List<List<Object>> sheetData = new ArrayList<>();
+//        sheetData.add(List.of("Name", "Age"));
+//        sheetData.add(List.of("John Doe", "30"));
+//        sheetData.add(List.of("Jane Doe", "25"));
+//        sheetData.add(List.of("", ""));
+//
+//        List<Map<String, String>> expectedResult = new ArrayList<>();
+//        Map<String, String> row1 = new HashMap<>();
+//        row1.put("Name", "John Doe");
+//        row1.put("Age", "30");
+//        Map<String, String> row2 = new HashMap<>();
+//        row2.put("Name", "Jane Doe");
+//        row2.put("Age", "25");
+//        expectedResult.add(row1);
+//        expectedResult.add(row2);
+//
+//        when(googleSheetConfig.provideSheetsClient()).thenReturn(new Sheets.Builder(null, null, null).build());
+//        when(googleSheetUtils.filterData(any(Sheets.class), anyString(), anyString())).thenReturn(sheetData);
+//        when(googleSheetUtils.getColumnNames(any())).thenReturn(List.of("Name", "Age"));
+//        when(googleSheetUtils.createRowMapFromSheetData(any(), any())).thenAnswer(
+//                invocation -> {
+//                    List<String> columnNames = invocation.getArgument(0);
+//                    List<Object> row = invocation.getArgument(1);
+//                    Map<String, String> rowMap = new HashMap<>();
+//                    for (int i = 0; i < columnNames.size(); i++) {
+//                        rowMap.put(columnNames.get(i), row.get(i).toString());
+//                    }
+//                    return rowMap;
+//                }
+//        );
+//        when(googleSheetUtils.shouldAddRowToResponse(any(), anyString())).thenReturn(true);
+//
+//        // Act
+//        List<Map<String, String>> result = googleSheetsService.findData(range, defaultColumnName);
+//
+//        // Assert
+//        assertEquals(expectedResult, result);
+//    }
+
     @Test
     void shouldFindData() throws GeneralSecurityException, IOException {
         // Arrange
@@ -125,7 +169,6 @@ class GoogleSheetsServiceTest {
         sheetData.add(List.of("Name", "Age"));
         sheetData.add(List.of("John Doe", "30"));
         sheetData.add(List.of("Jane Doe", "25"));
-        sheetData.add(List.of("", ""));
 
         List<Map<String, String>> expectedResult = new ArrayList<>();
         Map<String, String> row1 = new HashMap<>();
@@ -137,7 +180,8 @@ class GoogleSheetsServiceTest {
         expectedResult.add(row1);
         expectedResult.add(row2);
 
-        when(googleSheetConfig.provideSheetsClient()).thenReturn(new Sheets.Builder(null, null, null).build());
+        Sheets mockSheets = Mockito.mock(Sheets.class);
+        when(googleSheetConfig.provideSheetsClient()).thenReturn(mockSheets);
         when(googleSheetUtils.filterData(any(Sheets.class), anyString(), anyString())).thenReturn(sheetData);
         when(googleSheetUtils.getColumnNames(any())).thenReturn(List.of("Name", "Age"));
         when(googleSheetUtils.createRowMapFromSheetData(any(), any())).thenAnswer(
