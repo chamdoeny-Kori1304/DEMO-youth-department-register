@@ -1,10 +1,13 @@
 package com.ohgiraffers.demo_church.common.service;
 
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.ohgiraffers.demo_church.config.GoogleSheetConfig;
 import com.ohgiraffers.demo_church.util.GoogleSheetUtils;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -33,11 +36,6 @@ class GoogleSheetsServiceTest {
     @MockitoBean
     private GoogleSheetUtils googleSheetUtils;
 
-//    @BeforeEach
-//    void setUp() {
-//        googleSheetsService = new GoogleSheetsService("test-spreadsheet-id", googleSheetConfig, googleSheetUtils);
-//    }
-
     @Test
     void shouldGetSheetData() throws GeneralSecurityException, IOException {
         // Arrange
@@ -47,7 +45,8 @@ class GoogleSheetsServiceTest {
         expectedData.add(List.of("John Doe", "30"));
         expectedData.add(List.of("Jane Doe", "25"));
 
-        when(googleSheetConfig.provideSheetsClient()).thenReturn(new Sheets.Builder(null, null, null).build());
+        Sheets mockSheets = Mockito.mock(Sheets.class);
+        when(googleSheetConfig.provideSheetsClient()).thenReturn(mockSheets);
         when(googleSheetUtils.filterData(any(Sheets.class), anyString(), anyString())).thenReturn(expectedData);
 
         // Act
@@ -72,8 +71,8 @@ class GoogleSheetsServiceTest {
         // 메서드가 정상적으로 실행되면 테스트 통과
     }
 
-    @Test
-    void shouldAppendSheetData() throws IOException, GeneralSecurityException {
+//    @Test
+//    void shouldAppendSheetData() throws IOException, GeneralSecurityException {
 //        // Arrange
 //        String spreadsheetId = "test-spreadsheet-id";
 //        String range = "A1:B1";
@@ -86,10 +85,35 @@ class GoogleSheetsServiceTest {
 //        when(appendRequest.execute()).thenReturn(expectedResponse);
 //
 //        // Act
-//        AppendValuesResponse result = googleSheetsService.appendSheetData(spreadsheetId, range, body);
+//        AppendValuesResponse result = googleSheetsService.appendSheetData(range, body);
 //
 //        // Assert
 //        assertEquals(expectedResponse, result);
+//    }
+
+    @Test
+    void shouldAppendSheetData() throws IOException, GeneralSecurityException {
+        // Arrange
+        String range = "A1:B1";
+        ValueRange body = new ValueRange();
+
+        Sheets mockSheets = Mockito.mock(Sheets.class);
+        Sheets.Spreadsheets.Values mockValues = Mockito.mock(Sheets.Spreadsheets.Values.class);
+        Sheets.Spreadsheets.Values.Append mockAppend = Mockito.mock(Sheets.Spreadsheets.Values.Append.class);
+        AppendValuesResponse expectedResponse = new AppendValuesResponse();
+
+        when(googleSheetConfig.provideSheetsClient()).thenReturn(mockSheets);
+        when(mockSheets.spreadsheets()).thenReturn(Mockito.mock(Sheets.Spreadsheets.class));
+        when(mockSheets.spreadsheets().values()).thenReturn(mockValues);
+        when(mockValues.append(anyString(), anyString(), any(ValueRange.class))).thenReturn(mockAppend);
+        when(mockAppend.setValueInputOption(anyString())).thenReturn(mockAppend);
+        when(mockAppend.execute()).thenReturn(expectedResponse);
+
+        // Act
+        AppendValuesResponse result = googleSheetsService.appendSheetData( range, body);
+
+        // Assert
+        assertEquals(expectedResponse, result);
     }
 
     @Test
