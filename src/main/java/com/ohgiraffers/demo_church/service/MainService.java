@@ -1,5 +1,6 @@
 package com.ohgiraffers.demo_church.service;
 
+import com.ohgiraffers.demo_church.domain.Member;
 import com.ohgiraffers.demo_church.domain.OrderInfo;
 import com.ohgiraffers.demo_church.repository.MainRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class MainService {
 
     private final String DEFAULT_COLUMN_NAME = "이름";
 
-    public void writeToSheet(String spreadSheetId, String range, OrderInfo orderInfo) {
-        repository.save(spreadSheetId, range, orderInfo);
+    public void saveMember(String range, Member member) {
+        repository.save(range, member);
 
     }
 
