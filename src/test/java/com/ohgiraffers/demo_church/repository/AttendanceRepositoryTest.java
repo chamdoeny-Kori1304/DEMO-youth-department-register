@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,5 +58,15 @@ class AttendanceRepositoryTest {
         assertEquals(expect, names);
 
         log.info("writeAttendance() 실행 시간: {} ms", elapsedMillis);
+    }
+
+    @Test
+    void AddRowTest() throws IOException, GeneralSecurityException {
+
+        List<Object> newData = new ArrayList<>(); // 빈 ArrayList 생성
+        newData.add("김세나"); // 초기 값 추가
+
+        attendanceRepository.addRow(newData, "sheet2!A1:BB1");
+
     }
 }
