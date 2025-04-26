@@ -1,33 +1,29 @@
 package com.ohgiraffers.demo_church.common.service;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.script.Script;
-import com.google.api.services.script.model.*;
+import com.google.api.services.script.model.Content;
+import com.google.api.services.script.model.CreateProjectRequest;
+import com.google.api.services.script.model.File;
+import com.google.api.services.script.model.Project;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 //import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 
 
 // ID : AKfycbwzdoifRnysrkxzI6NDOTsZhhP32_0VQyQ_69Jh96vSU8N8RdKnih8hEWPn-vHwy78i
@@ -54,13 +50,12 @@ public class AppScriptService {
     private String SCRIPT_ID="1BJF6dTj-8KmW_-qdgVTTJiQJPzxsmPRrMjski7JvZlSdAr5WHA_o4v04";
     private String SCRIPT_ID1= "AKfycbwA1SJUElGyXxUFD31Ccv5f7CpfCWnRCCLn5heCkJVwuT59DJr7xQxyADlRre0sJPvz";
 
-    public Mono<String> triggerAppScriptWithAuth() {
-        try {
-            GoogleCredentials credential = GoogleCredentials.fromStream(
-                            new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream())
-                    .createScoped(Collections.singletonList("https://www.googleapis.com/auth/script.process")); // App Script 실행 권한
 
-            HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(credential);
+
+
+    public Mono<String> useWebClient() {
+        try {
+            GoogleCredentials credential = getGoogleCredentials();
 
             // WebClient를 사용하여 인증된 요청 보내기
             WebClient client = WebClient.builder()
@@ -79,5 +74,49 @@ public class AppScriptService {
             return Mono.error(new RuntimeException("Failed to load credentials", e));
         }
     }
+
+    public String useScript(){
+        try{
+            GoogleCredentials credential = getGoogleCredentials();
+
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            Script service =
+                    new Script.Builder(HTTP_TRANSPORT, JSON_FACTORY,  new HttpCredentialsAdapter(credential) )
+                            .setApplicationName("uniflee").build();
+            Script.Projects projects = service.projects();
+
+            // Creates a new script project.
+            Project createOp = projects.create(new CreateProjectRequest().setTitle("My Script")).execute();
+
+            // Uploads two files to the project.
+            File file1 = new File()
+                    .setName("hello")
+                    .setType("SERVER_JS")
+                    .setSource("function helloWorld() {\n  console.log(\"Hello, world!\");\n}");
+            File file2 = new File()
+                    .setName("appsscript")
+                    .setType("JSON")
+                    .setSource("{\"timeZone\":\"America/New_York\",\"exceptionLogging\":\"CLOUD\"}");
+            Content content = new Content().setFiles(Arrays.asList(file1, file2));
+            Content updatedContent = projects.updateContent(createOp.getScriptId(), content).execute();
+
+            // Logs the project URL.
+            System.out.printf("https://script.google.com/d/%s/edit\n", updatedContent.getScriptId());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return  "";
+    }
+
+
+    private GoogleCredentials getGoogleCredentials() throws IOException
+        {
+             return GoogleCredentials.fromStream(
+                            new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream())
+                    .createScoped(Collections.singletonList("https://www.googleapis.com/auth/script.process")); // App Script 실행 권한
+
+        }
 }
 
