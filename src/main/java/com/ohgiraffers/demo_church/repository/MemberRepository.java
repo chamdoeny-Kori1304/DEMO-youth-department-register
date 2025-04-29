@@ -20,6 +20,7 @@ public class MemberRepository {
 
     private final GoogleSheetsService sheetsService;
 
+    // TODO 이미 존재하는지 확인 후 동작 로직 추가
     public SheetResponse save(String range, Member member) {
         try {
             List<List<Object>> values = List.of(member.toList());

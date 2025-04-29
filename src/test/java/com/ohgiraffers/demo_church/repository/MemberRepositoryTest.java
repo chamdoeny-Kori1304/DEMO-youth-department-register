@@ -98,4 +98,11 @@ class MemberRepositoryTest {
         String range = "InvalidSheet!A1:B2";
         assertThrows(RuntimeException.class, () -> mainRepository.findData(range,""));
     }
+
+    @Test
+    void addNewMember_thenReturnsTrue() {
+        String range = "Sheet1!A1:C4"; // 마지막 row가 일부만 있음
+
+        mainRepository.save(range,member2);
+    }
 }

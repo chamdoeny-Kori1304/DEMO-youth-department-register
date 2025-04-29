@@ -20,7 +20,6 @@ public class Member {
     public List<Object> toList(){
         List<Object> list = new ArrayList<>();
         list.add(""); // A열을 비워야 하기때무에 더비 데이터 작성
-        list.add(id);
         list.add(name);
         list.add(birthDate.toString());
         list.add(phoneNumber);
