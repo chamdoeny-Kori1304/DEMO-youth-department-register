@@ -3,7 +3,7 @@ package com.ohgiraffers.demo_church.config;
 
 import com.google.api.services.sheets.v4.Sheets;
 
-import com.ohgiraffers.demo_church.common.service.GoogleSheetsClientProvider;
+import com.ohgiraffers.demo_church.common.GoogleSheetsClientProvider;
 import org.springframework.context.annotation.Configuration;
 
 

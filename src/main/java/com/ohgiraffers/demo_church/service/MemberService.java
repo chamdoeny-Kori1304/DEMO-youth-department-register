@@ -1,8 +1,7 @@
 package com.ohgiraffers.demo_church.service;
 
 import com.ohgiraffers.demo_church.domain.Member;
-import com.ohgiraffers.demo_church.domain.OrderInfo;
-import com.ohgiraffers.demo_church.repository.MainRepository;
+import com.ohgiraffers.demo_church.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +13,8 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MainService {
-    private final MainRepository repository;
+public class MemberService {
+    private final MemberRepository repository;
 
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private String ALL_MEMBER_RANGE;

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -16,16 +17,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Slf4j
+@TestPropertySource(properties = {
+        "google.spreadsheet.Attendance.range=A1:AA90",
+        "google.spreadsheet.Attendance=sheet2"
+})
 class AttendanceRepositoryTest {
-
-    //TODO 싫행하기 전에 특정 날짜에 값들을  "null"로 바꾸자
-
-    // TODO 테스트용 시트로 바꿔서 사용, 실제 사용 시트는 건들지 않게 수정
 
     @Autowired
     private AttendanceRepository attendanceRepository;
     static private String[] DEFAULT_TARGET_NAMES = {"성종민9", "김철수1", "신짱구5", "김철수9", "노진구5", "홍길동1"};
     static private String DEFAULT_TARGET_DATE = "1/5";
+
+    @Test
+    void testSheetRangeAndNameFromTestConfig() {
+        System.out.println("Sheet Range in Test: " + attendanceRepository.getSheetRange());
+
+        assertEquals("sheet2!A1:AA90", attendanceRepository.getSheetRange());
+    }
 
     @Test
     void writeAttendance() {
@@ -44,11 +52,11 @@ class AttendanceRepositoryTest {
      * !주의! writeAttendance()를 실행하고 나서 사용해야 에러 안 남
      */
     @Test
-    void matchAttendance () {
+    void matchAttendance() {
         List<String> expect = new ArrayList<>((Arrays.asList(DEFAULT_TARGET_NAMES)));
         long start = System.nanoTime();
 
-        List<String> names =attendanceRepository.getNamesByDate(DEFAULT_TARGET_DATE);
+        List<String> names = attendanceRepository.getNamesByDate(DEFAULT_TARGET_DATE);
         long end = System.nanoTime();
         double elapsedMillis = (end - start) / 1_000_000.0;
 

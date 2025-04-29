@@ -4,7 +4,7 @@ package com.ohgiraffers.demo_church.controller;
 // 참고 블로그 URL: https://cinnamon-lol.tistory.com/2
 // https://minuk22.tistory.com/89
 
-import com.ohgiraffers.demo_church.service.MainService;
+import com.ohgiraffers.demo_church.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/google")
 @RequiredArgsConstructor
-public class MainController {
-    private final MainService mainService;
+public class MemberController {
+    private final MemberService mainService;
 
     @GetMapping("/sheet/{range}")
     public ResponseEntity<?> getSheetData(@PathVariable String range, @RequestParam(required = false) String columnName) {
