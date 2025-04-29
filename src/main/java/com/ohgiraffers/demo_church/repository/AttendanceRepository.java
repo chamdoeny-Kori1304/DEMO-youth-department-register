@@ -4,6 +4,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.ohgiraffers.demo_church.common.service.GoogleSheetsService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,20 +25,20 @@ public class AttendanceRepository {
 
     private final GoogleSheetsService googleSheetsService;
 
-    @Value("${google.spreadsheet.id}")
-    private String SPREAD_SHEET_ID;
-    @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
-    private final String sheetName = "sheet2";
+    @Value("${google.spreadsheet.Attendance}")
+    private String sheetName;
+
+    @Getter
+    @Value("${google.spreadsheet.Attendance}!${google.spreadsheet.Attendance.range}")
+    private String sheetRange;
 
     // TODO 구글시트에 이름을 사전순으로 정렬하고 targetNames도 사전순으로 정렬해서 하면 O(n)으로 끝낼 수 있다.
     public void updateAttendance(String[] targetNames, String targetDate) {
-        Sheets sheets;
         List<List<Object>> values;
         Arrays.sort(targetNames);
 
-
         try {
-         values =  googleSheetsService.getSheetData("sheet2!A1:AA90");
+            values = googleSheetsService.getSheetData(sheetRange);
 
             if (values == null || values.isEmpty()) return;
 
@@ -85,7 +86,7 @@ public class AttendanceRepository {
         List<String> response = new ArrayList<>();
 
         try {
-            values =  googleSheetsService.getSheetData("sheet2!A1:AA90");
+            values = googleSheetsService.getSheetData(sheetRange);
 
             if (values == null || values.isEmpty()) return response;
 
@@ -113,16 +114,15 @@ public class AttendanceRepository {
 //        Sheets sheets = googleSheetConfig.provideSheetsClient();
 
         ValueRange body = new ValueRange().setValues(Collections.singletonList(rowData));
-        String DEFAULT_VALUE= "null";
+        String DEFAULT_VALUE = "null";
 
-        while (rowData.size() < 54){
+        while (rowData.size() < 54) {
             rowData.add(DEFAULT_VALUE);
         }
         googleSheetsService.appendSheetData(range, body);
 
-        log.info("새로운 행이 스프레드시트에 추가되었습니다: {} " , rowData);
+        log.info("새로운 행이 스프레드시트에 추가되었습니다: {} ", rowData);
     }
-
 
 
     private String getA1Notation(int colIndex, int rowIndex) {
