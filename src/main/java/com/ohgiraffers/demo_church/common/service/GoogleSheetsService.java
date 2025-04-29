@@ -38,10 +38,10 @@ public class GoogleSheetsService {
         return googleSheetUtils.filterData(sheets, range, SPREAD_SHEET_ID);
     }
 
-    public void updateSheetData(String spreadsheetId, BatchUpdateValuesRequest body) throws IOException, GeneralSecurityException {
+    public void updateSheetData( BatchUpdateValuesRequest body) throws IOException, GeneralSecurityException {
         Sheets sheets = googleSheetConfig.provideSheetsClient();
         sheets.spreadsheets().values()
-                .batchUpdate(spreadsheetId, body)
+                .batchUpdate(SPREAD_SHEET_ID, body)
                 .execute();
     }
 
