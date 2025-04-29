@@ -120,6 +120,11 @@ public class AttendanceRepository {
         Sheets sheets = googleSheetConfig.provideSheetsClient();
 
         ValueRange body = new ValueRange().setValues(Collections.singletonList(rowData));
+        String DEFAULT_VALUE= "null";
+
+        while (rowData.size() < 54){
+            rowData.add(DEFAULT_VALUE);
+        }
 //        String range = "A1"; // 데이터를 추가할 시작 셀 (새로운 행은 자동으로 추가됨)
 
         sheets.spreadsheets().values()
