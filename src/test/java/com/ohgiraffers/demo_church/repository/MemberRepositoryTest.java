@@ -1,5 +1,6 @@
 package com.ohgiraffers.demo_church.repository;
 
+import com.ohgiraffers.demo_church.common.SheetResponse;
 import com.ohgiraffers.demo_church.domain.Member;
 import com.ohgiraffers.demo_church.domain.enums.Gender;
 import org.junit.jupiter.api.Test;
@@ -103,6 +104,7 @@ class MemberRepositoryTest {
     void addNewMember_thenReturnsTrue() {
         String range = "Sheet1!A1:C4"; // 마지막 row가 일부만 있음
 
-        mainRepository.save(range,member2);
+       SheetResponse res = mainRepository.save(range,member2);
+       assertTrue(res.isSuccess());
     }
 }
