@@ -17,11 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
-class MainRepositoryTest {
+class MemberRepositoryTest {
 //    private final MainRepository mainRepository = new MainRepository(new GoogleSheetConfig());
 
     @Autowired
-    private MainRepository mainRepository;
+    private MemberRepository mainRepository;
 
     @Value("${google.spreadsheet.main}!${google.spreadsheet.main.range}")
     private String MAIN_SHEET_RANGE;

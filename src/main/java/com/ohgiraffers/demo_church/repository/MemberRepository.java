@@ -16,7 +16,7 @@ import java.util.*;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class MainRepository {
+public class MemberRepository {
 
     private final GoogleSheetsService sheetsService;
 
