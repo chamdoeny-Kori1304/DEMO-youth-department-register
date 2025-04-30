@@ -55,7 +55,7 @@ public class MemberController {
     @PostMapping()
     public ResponseEntity<?> postMembers(@RequestBody MemberDTO memberDTO) {
 
-           Member member = memberDTO.toEntity();
+           Member member = memberDTO.toMember();
         try {
             String res = memberService.saveMember(member);
 
