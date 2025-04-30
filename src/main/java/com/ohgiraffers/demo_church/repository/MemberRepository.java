@@ -37,8 +37,8 @@ public class MemberRepository {
         try {
             List<List<Object>> values = List.of(member.toList());
             ValueRange body = new ValueRange().setValues(values);
-
-            AppendValuesResponse res = sheetsService.appendSheetData(sheetRange, body);
+            String appendRange = sheetName + "!" + "A1:M1";
+            AppendValuesResponse res = sheetsService.appendSheetData(appendRange, body);
 
             return new SheetResponse(true, res.getUpdates().getUpdatedRange());
 
