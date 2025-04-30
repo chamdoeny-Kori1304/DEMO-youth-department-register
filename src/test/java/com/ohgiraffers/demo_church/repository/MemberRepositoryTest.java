@@ -33,10 +33,10 @@ class MemberRepositoryTest {
 
     private String MAIN_DEFAULT_COLUMN_NAME = "이름";
 
-    static Member member1 = new Member("user01", "김철수", "010-1234-5678", "서울시 강남구", Gender.MALE, LocalDate.of(1990, 5, 15), "친구", "조효린");
-    static Member member2 = new Member("user02", "이영희", "010-9876-5432", "경기도 성남시", Gender.FEMALE, LocalDate.of(1995, 10, 20), "동료", "성종민");
-    static Member member3 = new Member("user03", "박지성", "010-1111-2222", "인천광역시", Gender.MALE, LocalDate.of(1988, 7, 1), "가족", "박용진");
-    static Member member4 = new Member("user04", "최유나", "010-3333-4444", "대전광역시", Gender.FEMALE, LocalDate.of(2000, 3, 10), "선배", "정현빈");
+    static Member member1 = new Member("user01", "김철수", Gender.MALE,"010-1234-5678", "서울시 강남구", LocalDate.of(1990, 5, 15), "친구", "조효린");
+    static Member member2 = new Member("user02", "이영희", Gender.FEMALE, "010-1111-5678","경기도 성남시",  LocalDate.of(1995, 10, 20), "동료", "성종민");
+    static Member member3 = new Member("user03", "박지성", Gender.MALE, "010-2222-5678","인천광역시",  LocalDate.of(1988, 7, 1), "가족", "박용진");
+    static Member member4 = new Member("user04", "최유나", Gender.FEMALE, "010-3333-5678","대전광역시", LocalDate.of(2000, 3, 10), "선배", "정현빈");
 
     @Test
     void 모든_멤버_찾는데_걸리는_시간() {
