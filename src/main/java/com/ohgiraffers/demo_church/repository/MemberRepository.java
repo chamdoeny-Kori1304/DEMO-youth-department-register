@@ -5,8 +5,10 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import com.ohgiraffers.demo_church.common.SheetResponse;
 import com.ohgiraffers.demo_church.common.service.GoogleSheetsService;
 import com.ohgiraffers.demo_church.domain.Member;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 
@@ -20,13 +22,23 @@ public class MemberRepository {
 
     private final GoogleSheetsService sheetsService;
 
+    @Getter
+    @Value("${google.spreadsheet.member}")
+    private String sheetName;
+
+    @Getter
+    @Value("${google.spreadsheet.member}!${google.spreadsheet.member.range}")
+    private String sheetRange;
+
+//    private String range = "구성원!A1J2";
+
     // TODO 이미 존재하는지 확인 후 동작 로직 추가
-    public SheetResponse save(String range, Member member) {
+    public SheetResponse save( Member member) {
         try {
             List<List<Object>> values = List.of(member.toList());
             ValueRange body = new ValueRange().setValues(values);
 
-            AppendValuesResponse res = sheetsService.appendSheetData(range, body);
+            AppendValuesResponse res = sheetsService.appendSheetData(sheetRange, body);
 
             return new SheetResponse(true, res.getUpdates().getUpdatedRange());
 
@@ -36,10 +48,10 @@ public class MemberRepository {
         }
     }
 
-    public List<Map<String, String>> findData(String range, String defaultColumnName) {
+    public List<Map<String, String>> findData(String defaultColumnName) {
         List<Map<String, String>> findResponse = new ArrayList<>();
         try {
-            List<Map<String, String>> _res = sheetsService.findData(range, defaultColumnName);
+            List<Map<String, String>> _res = sheetsService.findData(sheetRange, defaultColumnName);
             if (_res != null && !_res.isEmpty()) {
                 findResponse.addAll(_res);
             }
@@ -51,9 +63,9 @@ public class MemberRepository {
         return findResponse;
     }
 
-    public Map<String, List<String>> getTeamToMembersMap(String range, String defaultColumnName, String yearQuarter) {
+    public Map<String, List<String>> getTeamToMembersMap( String defaultColumnName, String yearQuarter) {
         Map<String, List<String>> teamToMembersMap = new HashMap<>();
-        sheetsService.getDataFromSheet(range, defaultColumnName, (rowMap) -> {
+        sheetsService.getDataFromSheet(sheetRange, defaultColumnName, (rowMap) -> {
             String key = rowMap.get(yearQuarter);
             if (!teamToMembersMap.containsKey(key)) {
                 teamToMembersMap.put(key, new ArrayList<>());

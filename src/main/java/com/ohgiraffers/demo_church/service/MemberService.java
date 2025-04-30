@@ -22,7 +22,7 @@ public class MemberService {
     private final String DEFAULT_COLUMN_NAME = "이름";
 
     public void saveMember(String range, Member member) {
-        repository.save(range, member);
+        repository.save(member);
 
     }
 
@@ -34,7 +34,7 @@ public class MemberService {
      */
     public List<Map<String, String>> readFromSheet(String range, String defaultColumName) {
 
-        return repository.findData(range, defaultColumName);
+        return repository.findData( defaultColumName);
 
     }
 
@@ -44,13 +44,13 @@ public class MemberService {
      * @return 회원 데이터 전체 리스트
      */
     public List<Map<String, String>> readAllMembersFromMainSheet() {
-        return repository.findData(ALL_MEMBER_RANGE, DEFAULT_COLUMN_NAME);
+        return repository.findData( DEFAULT_COLUMN_NAME);
 
     }
 
 
     public Map<String, List<String>> getTeamToMembersMap(String yearQuarter) {
-        return repository.getTeamToMembersMap(ALL_MEMBER_RANGE, DEFAULT_COLUMN_NAME, yearQuarter);
+        return repository.getTeamToMembersMap( DEFAULT_COLUMN_NAME, yearQuarter);
 
     }
 }
