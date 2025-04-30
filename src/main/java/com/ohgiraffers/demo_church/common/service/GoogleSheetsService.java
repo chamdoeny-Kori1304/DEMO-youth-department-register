@@ -38,14 +38,14 @@ public class GoogleSheetsService {
         return googleSheetUtils.filterData(sheets, range, SPREAD_SHEET_ID);
     }
 
-    public void updateSheetData( BatchUpdateValuesRequest body) throws IOException, GeneralSecurityException {
+    public void updateSheetData(BatchUpdateValuesRequest body) throws IOException, GeneralSecurityException {
         Sheets sheets = googleSheetConfig.provideSheetsClient();
         sheets.spreadsheets().values()
                 .batchUpdate(SPREAD_SHEET_ID, body)
                 .execute();
     }
 
-    public AppendValuesResponse appendSheetData( String range, ValueRange body) throws IOException, GeneralSecurityException {
+    public AppendValuesResponse appendSheetData(String range, ValueRange body) throws IOException, GeneralSecurityException {
         Sheets sheets = googleSheetConfig.provideSheetsClient();
         AppendValuesResponse res = sheets.spreadsheets().values()
                 .append(SPREAD_SHEET_ID, range, body)
@@ -59,7 +59,6 @@ public class GoogleSheetsService {
     public List<Map<String, String>> findData(String range, String defaultColumnName) throws GeneralSecurityException, IOException {
         List<Map<String, String>> findResponse = new ArrayList<>();
 
-//         = sheetsService.getSheetData(range, defaultColumnName);
         getDataFromSheet(range, defaultColumnName, (rowMap) -> {
             boolean shouldAdd = googleSheetUtils.shouldAddRowToResponse(rowMap, defaultColumnName);
             if (shouldAdd) {
@@ -73,7 +72,7 @@ public class GoogleSheetsService {
     }
 
 
-    public  <T> void getDataFromSheet(String range, String defaultColumnName, Function<Map<String, String>, T> mapper) {
+    public <T> void getDataFromSheet(String range, String defaultColumnName, Function<Map<String, String>, T> mapper) {
         List<List<Object>> values;
         try {
             Sheets sheets = googleSheetConfig.provideSheetsClient();
