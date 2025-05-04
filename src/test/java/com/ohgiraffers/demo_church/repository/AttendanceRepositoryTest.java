@@ -74,7 +74,7 @@ class AttendanceRepositoryTest {
         List<Object> newData = new ArrayList<>(); // 빈 ArrayList 생성
         newData.add("김세나"); // 초기 값 추가
 
-        attendanceRepository.addRow(newData, "sheet2!A1:BB1");
+        attendanceRepository.addRow(newData);
 
     }
 }
