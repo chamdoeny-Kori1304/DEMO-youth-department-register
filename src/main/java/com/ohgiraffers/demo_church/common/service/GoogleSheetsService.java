@@ -2,6 +2,7 @@ package com.ohgiraffers.demo_church.common.service;
 
 
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,11 +39,12 @@ public class GoogleSheetsService {
         return googleSheetUtils.filterData(sheets, range, SPREAD_SHEET_ID);
     }
 
-    public void updateSheetData(BatchUpdateValuesRequest body) throws IOException, GeneralSecurityException {
+    public BatchUpdateValuesResponse updateSheetData(BatchUpdateValuesRequest body) throws IOException, GeneralSecurityException {
         Sheets sheets = googleSheetConfig.provideSheetsClient();
-        sheets.spreadsheets().values()
+        BatchUpdateValuesResponse res    =  sheets.spreadsheets().values()
                 .batchUpdate(SPREAD_SHEET_ID, body)
                 .execute();
+        return res;
     }
 
     public AppendValuesResponse appendSheetData(String range, ValueRange body) throws IOException, GeneralSecurityException {
