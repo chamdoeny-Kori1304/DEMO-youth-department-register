@@ -2,7 +2,9 @@ package com.ohgiraffers.demo_church.repository;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.ohgiraffers.demo_church.common.SheetResponse;
 import com.ohgiraffers.demo_church.common.service.GoogleSheetsService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +35,14 @@ public class AttendanceRepository {
     private String sheetRange;
 
     // TODO 구글시트에 이름을 사전순으로 정렬하고 targetNames도 사전순으로 정렬해서 하면 O(n)으로 끝낼 수 있다.
-    public void updateAttendance(String[] targetNames, String targetDate) {
+    public SheetResponse updateAttendance(String[] targetNames, String targetDate) {
         List<List<Object>> values;
         Arrays.sort(targetNames);
 
         try {
             values = googleSheetsService.getSheetData(sheetRange);
 
-            if (values == null || values.isEmpty()) return;
+            if (values == null || values.isEmpty()) return null;
 
             List<Object> header = values.get(0);
             int colIndex = header.indexOf(targetDate);
@@ -70,18 +72,25 @@ public class AttendanceRepository {
                     .setValueInputOption("RAW")
                     .setData(updateData);
 
-            googleSheetsService.updateSheetData(body);
+            BatchUpdateValuesResponse response = googleSheetsService.updateSheetData(body);
 
+            List<String> cellList = new ArrayList<>();
+            response.values().forEach(value -> {
+                cellList.add(value.toString());
+            });
+
+            SheetResponse res = new SheetResponse(true, "Success update", cellList.toArray(new String[0]));
+
+            return res;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        ;
+
     }
 
 
     public List<String> getNamesByDate(String targetDate) {
-        Sheets sheets;
         List<List<Object>> values;
         List<String> response = new ArrayList<>();
 
@@ -109,17 +118,16 @@ public class AttendanceRepository {
 
     }
 
-    public void addRow(List<Object> rowData, String range) throws IOException, GeneralSecurityException {
-
-//        Sheets sheets = googleSheetConfig.provideSheetsClient();
+    public void addRow(List<Object> rowData) throws IOException, GeneralSecurityException {
 
         ValueRange body = new ValueRange().setValues(Collections.singletonList(rowData));
         String DEFAULT_VALUE = "null";
 
-        while (rowData.size() < 54) {
+        // 이름& 번호 시트 개수는 미포함
+        while (rowData.size() < 54+2) {
             rowData.add(DEFAULT_VALUE);
         }
-        googleSheetsService.appendSheetData(range, body);
+        googleSheetsService.appendSheetData(sheetRange, body);
 
         log.info("새로운 행이 스프레드시트에 추가되었습니다: {} ", rowData);
     }
